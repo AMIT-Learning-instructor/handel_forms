@@ -14,10 +14,16 @@
 
     function getBlog($id){
         // global $conn;
-        $sql = 'SELECT b.id, b.title ,b.content, b.created_at, a.name FROM `blogs` as b INNER JOIN authors as a on b.author_id = a.id where b.id = ?;';
+        $sql = 'SELECT b.id, b.title,b.short_description ,b.content, b.created_at, a.name , b.author_id FROM `blogs` as b INNER JOIN authors as a on b.author_id = a.id where b.id = ?;';
         $result = mysqli_execute_query($GLOBALS['conn'],$sql,[$id]);
         $row = mysqli_fetch_assoc($result);
         return $row;
+    }
+    function deleteBlog($id){
+        // global $conn;
+        $sql = 'DELETE FROM blogs where id = ?';
+        $result = mysqli_execute_query($GLOBALS['conn'],$sql,[$id]);
+        return $result;
     }
 
     function getAuthors(){
@@ -30,6 +36,11 @@
     function insertPost($title,$short_description,$content,$author_id){
         $sql = 'INSERT INTO blogs (title,short_description,content,author_id) VALUES (?,?,?,?)';
         $result = mysqli_execute_query($GLOBALS['conn'],$sql,[$title,$short_description,$content,$author_id]);
+        return $result;
+    }
+    function updatePost($blog_id,$title,$short_description,$content,$author_id){
+        $sql = 'UPDATE blogs SET title = ?,short_description=?,content=?,author_id=? where id = ?';
+        $result = mysqli_execute_query($GLOBALS['conn'],$sql,[$title,$short_description,$content,$author_id,$blog_id]);
         return $result;
     }
 

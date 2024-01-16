@@ -1,6 +1,10 @@
 <?php require_once('database.php') ?>
 
 <?php 
+    $is_new = true;
+    if ($_SERVER["REQUEST_METHOD"] == "PUT ") {
+        echo "PUT";
+    }
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $title = htmlspecialchars($_POST['title']);
         $short_description =htmlspecialchars($_POST['short-description']);
@@ -9,13 +13,42 @@
         if(empty($title) || empty($short_description)|| empty($content) || empty($author_id)){
             echo "Empty values";
         }else{
-            if(insertPost($title,$short_description,$content,$author_id)){
-                echo "ADDED";
-            }else {
-                echo "ERROR";
+            if(isset($_POST['blog_id'])){
+                $blog_id=htmlspecialchars($_POST['blog_id']);
+                if(updatePost($blog_id,$title,$short_description,$content,$author_id)){
+                    echo "UPDATED";
+                }else {
+                    echo "ERROR";
+                }
+            }else{
+
+                if(insertPost($title,$short_description,$content,$author_id)){
+                    echo "ADDED";
+                }else {
+                    echo "ERROR";
+                }
             }
         }
     }
+
+    if ($_SERVER["REQUEST_METHOD"] == "GET" ) {
+        if(isset($_GET['blog_id'])){
+            $is_new = false;
+            echo "UPDATE";
+            $blog_id = htmlspecialchars($_GET['blog_id']);
+            if(empty($blog_id)){
+               echo "<br>EMPTY ID"; 
+            }else {
+                $row = getBlog($blog_id);
+                // print_r($row);
+            }
+        }else{
+            echo "NEW";
+            $is_new = True;
+       
+        }
+    }
+
 
 ?>
 
@@ -51,18 +84,18 @@
 <main class="container ">
     <div class="row">
         <div class="col-12 mt-5">
-        <form class="row g-3" method="POST" action="new-post.php">
+        <form class="row g-3" method="POST" action="new-post.php<?= $is_new ? '' : '?blog_id='.$row['id'] ?>">
             <div class="col-md-6">
                 <label for="title" class="form-label">Title</label>
-                <input type="text" required name="title" class="form-control" id="title">
+                <input type="text" value="<?= $is_new ? '' : $row['title']?>" required name="title" class="form-control" id="title">
             </div>
             <div class="col-md-6">
                 <label for="author" class="form-label">Authors</label>
                 <select id="author" required name="author_id" class="form-select">
                     <?php
                         $results = getAuthors();
-                        while ($row = mysqli_fetch_assoc($results)){
-                            echo "<option value=".$row['id'].">".$row['name']."</option>";
+                        while ($arow = mysqli_fetch_assoc($results)){
+                            echo "<option ". ($is_new ? '' :( ( $row['author_id'] == $arow['id'] ) ?'selected' : ''))." value=".$arow['id'].">".$arow['name']."</option>";
                         }
                     ?>
                     
@@ -70,14 +103,19 @@
             </div>
             <div class="col-md-12">
                 <label for="short-description" class="form-label">short description</label>
-                <input type="text" name="short-description" class="form-control" id="short-description">
+                <input type="text" value="<?= $is_new ? '' : $row['short_description']?>" name="short-description" class="form-control" id="short-description">
             </div>
           
             <div class="col-md-12">
                 <label for="content" class="form-label">content</label>
-                <textarea class="form-control" name="content" id="content" cols="30" rows="10"></textarea>
+                <textarea class="form-control" name="content" id="content" cols="30" rows="10"><?= $is_new ? '' : $row['content']?></textarea>
             </div>
-          
+            <?php
+                if(!$is_new){
+                    echo '<input type="hidden" name="blog_id" value="'.$row['id'].'">';
+                }
+             
+            ?>
             <div class="col-12">
                 <button type="submit" class="btn btn-primary">Save</button>
             </div>

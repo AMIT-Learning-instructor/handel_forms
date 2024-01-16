@@ -1,4 +1,19 @@
 <?php require_once('database.php') ?>
+<?php
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  $blog_id = htmlspecialchars($_POST['blog_id']); 
+  if(empty($blog_id) ){
+      echo "Empty values";
+  }else{
+      if(deleteBlog($blog_id)){
+          echo "Deleted";
+      }else {
+          echo "ERROR";
+      }
+  }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,7 +57,13 @@
                             <h5 class="card-title">'.$row['title'].'</h5>
                             <h6 class="card-subtitle mb-2 text-body-secondary">'.$row['name'].'</h6>
                             <p class="card-text">'.$row['short_description'].'</p>
-                            <a href="post.php?blog_id='.$row['id'].'" class="card-link">read more</a>
+                            <a class="btn btn-primary" href="post.php?blog_id='.$row['id'].'" class="card-link">read more</a>
+                            <a class="btn btn-warning" href="new-post.php?blog_id='.$row['id'].'" class="card-link">UPDATE</a>
+                            <form method="POST" action="index.php">
+                              <input type="hidden" name="blog_id" value="'.$row['id'].'">
+                              <input class="btn btn-danger" type="submit" value="DELETE">
+
+                            </form>
                         </div>
                     </div>
                     ';
@@ -50,7 +71,6 @@
             ?>
         </div>
     </div>
-    
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
